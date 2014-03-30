@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -70,6 +73,13 @@ public class TimelineActivity extends Activity {
 		setupListeners();
 		getUserInfo();
 		getOldTweets();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.timeline, menu);
+		return true;
 	}
 
 	/** setups the views */
@@ -223,6 +233,16 @@ public class TimelineActivity extends Activity {
 
 	/** Callback for when the compose button is pressed */
 	public void onCompose(View v) {
+		composeHelper();
+	}
+
+	/** Callback for when the compose button is pressed from the action bar */
+	public void onCompose(MenuItem mi) {
+		composeHelper();
+	}
+
+	/** helper function that opens the compose activity */
+	private void composeHelper() {
 		Intent i = new Intent(this, ComposeActivity.class);
 		i.putExtra(USER_NAME_EXTRA, accountUser.getName());
 		i.putExtra(USER_SCREEN_NAME_EXTRA, accountUser.getScreenName());

@@ -68,7 +68,8 @@ public class ComposeActivity extends Activity {
 
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
-				Toast.makeText(getBaseContext(), "Failed to post tweet -- tweeting too frequently", Toast.LENGTH_LONG).show();
+				Toast.makeText(getBaseContext(), "Failed to post tweet ", Toast.LENGTH_LONG).show();
+				miTweet.setEnabled(true);
 				Log.d("networking", "Failed to post tweet.... " + jsonObject.toString());
 			}
 		});
