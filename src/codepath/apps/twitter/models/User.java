@@ -2,10 +2,12 @@ package codepath.apps.twitter.models;
 
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * User - model for twitter user
  */
-public class User {
+public class User implements Serializable {
 	private String name;
 	private String screenName;
 	private long id;

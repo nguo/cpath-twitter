@@ -10,6 +10,7 @@
 			android:id="@+id/ivUserProfile"
 			android:layout_alignParentLeft="true"
 			android:layout_marginLeft="15dp"
+			android:layout_marginRight="5dp"
 			android:layout_alignParentTop="true"
 			android:layout_marginTop="15dp"/>
 
@@ -30,18 +31,19 @@
 				android:layout_height="wrap_content"
 				android:textSize="12dp"
 				android:id="@+id/tvUserScreenName"
-				android:paddingLeft="5dp"
 				android:textColor="#777777"/>
 	</LinearLayout>
 
 	<EditText
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:paddingTop="10dp"
+			android:textSize="15dp"
 			android:hint="@string/compose_hint"
 			android:id="@+id/etBody"
 			android:background="@null"
 			android:layout_alignParentLeft="true"
-			android:layout_alignTop="@id/llUserInfoCompose"
-			android:layout_marginLeft="10dp"
-			android:layout_marginRight="10dp"/>
+			android:layout_below="@+id/llUserInfoCompose"
+			android:layout_marginLeft="15dp"
+			android:layout_marginRight="15dp"/>
 </RelativeLayout>

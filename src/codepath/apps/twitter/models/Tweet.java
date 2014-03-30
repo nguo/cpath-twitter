@@ -4,12 +4,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Tweet - model representing a tweet
  */
-public class Tweet {
+public class Tweet implements Serializable {
 	private User user;
 	private String body;
 	private long id;
