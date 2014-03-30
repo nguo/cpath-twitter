@@ -1,5 +1,6 @@
 package codepath.apps.twitter.models;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -34,10 +35,34 @@ public class User extends BaseModel {
 		return getInt("followers_count");
 	}
 
+	public int getUtcOffsetSecs() {
+		int offset = 0;
+		JSONObject timezone = getJSONObject("time_zone");
+		if (timezone != null) {
+			try {
+				offset = timezone.getInt("utc_offset");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		return offset;
+	}
+
 	public static User fromJson(JSONObject json) {
 		User u = new User();
 		try {
 			u.jsonObject = json;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return u;
+	}
+
+	public static User fromJsonString(String jsonString) {
+		User u = new User();
+		try {
+			u.jsonObject = new JSONObject(jsonString);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

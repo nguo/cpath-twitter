@@ -57,4 +57,13 @@ public class BaseModel {
 			return false;
 		}
 	}
+
+	protected JSONObject getJSONObject(String name) {
+		try {
+			return jsonObject.getJSONObject(name);
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
