@@ -33,13 +33,17 @@ public class TwitterClient extends OAuthBaseClient {
 	/**
 	 * Gets the tweets from the home timeline for the user
 	 * @param maxId		max_id param indicating the ID of the oldest tweet we have right now
+	 * @param sinceId	since_id param indicating the ID of the newest tweet we have right now
 	 * @param handler	the response handler
 	 */
-	public void getHomeTimeline(long maxId, AsyncHttpResponseHandler handler) {
+	public void getHomeTimeline(long maxId, long sinceId, AsyncHttpResponseHandler handler) {
 		RequestParams params = new RequestParams();
 		params.put("count", "50"); // grab 50 tweets at a time
 		if (maxId >= 0) {
 			params.put("max_id", Long.toString(maxId));
+		}
+		if (sinceId >= 0) {
+			params.put("since_id", Long.toString(sinceId));
 		}
 		String url = getApiUrl("statuses/home_timeline.json");
 		client.get(url, params, handler);

@@ -74,10 +74,10 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		}
 
 		long dynamicTimeDiff = (currentDate.getTime() - createdDate.getTime()); // in ms
-		if (dynamicTimeDiff < 6000) {
+		if (dynamicTimeDiff < 60000) {
 			return "just now"; // less than a minute ago
 		}
-		dynamicTimeDiff /= 6000; // in minutes
+		dynamicTimeDiff /= 60000; // in minutes
 		if (dynamicTimeDiff < 60) {
 			return getFriendlyTimeTextHelper(dynamicTimeDiff, "m"); // less than an hour ago
 		}
