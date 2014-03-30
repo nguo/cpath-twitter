@@ -31,7 +31,7 @@
 				android:layout_height="wrap_content"
 				android:textSize="12dp"
 				android:id="@+id/tvUserScreenName"
-				android:textColor="#777777"/>
+				android:textColor="@color/twitter_gray"/>
 	</LinearLayout>
 
 	<EditText

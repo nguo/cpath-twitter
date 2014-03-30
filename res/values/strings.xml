@@ -11,4 +11,7 @@
 	<string name="compose_name">Compose</string>
 	<string name="tweet">Tweet</string>
 
+	<color name="twitter_blue">#55ACEE</color>
+	<color name="twitter_gray">#9FADB6</color>
+
 </resources>

@@ -29,14 +29,14 @@
 				android:textSize="12dp"
 				android:id="@+id/tvScreenName"
 				android:paddingLeft="5dp"
-				android:textColor="#777777"
+				android:textColor="@color/twitter_gray"
 				android:layout_toRightOf="@+id/tvRealName"
 				android:layout_alignBaseline="@+id/tvRealName"/>
 		<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:textSize="12dp"
-				android:textColor="#777777"
+				android:textColor="@color/twitter_gray"
 				android:id="@+id/tvTimestamp"
 				android:layout_alignParentRight="true"
 				android:layout_alignBaseline="@id/tvRealName"/>
