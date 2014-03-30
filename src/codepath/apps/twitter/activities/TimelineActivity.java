@@ -128,8 +128,7 @@ public class TimelineActivity extends Activity {
 					// oldest tweet ID should be the lowest ID value
 					Iterator<Tweet> iter = tweets.iterator();
 					while (iter.hasNext()) {
-						Tweet oldTweet = iter.next();
-						long id = oldTweet.getId();
+						long id = iter.next().getId();
 						if (currentOldestTweetId < 0 || id <= currentOldestTweetId) {
 							if (id == lastOldestTweetId) {
 								iter.remove(); // duplicate entry. remove.
