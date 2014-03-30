@@ -39,14 +39,15 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		// load tweeter's profile image
 		ImageView ivProfile = (ImageView) v.findViewById(R.id.ivProfile);
 		ImageLoader.getInstance().displayImage(tweet.getUser().getProfileImageUrl(), ivProfile);
-		// set tweet time
-		String relativeTimestamp = getFormattedTime(tweet.getCreatedAt());
-		// set tweeter's name in the format "name @screenname" with some styling
-		TextView tvUserName = (TextView) v.findViewById(R.id.tvUserName);
-		String formattedName = "<b>" + u.getName() + "</b>"
-				+ "<small><font color='#777777'>@" + u.getScreenName() + "</font></small>"
-				+ "<b>" + relativeTimestamp + "</b>";
-		tvUserName.setText(Html.fromHtml(formattedName));
+		// set tweeter's real name
+		TextView tvRealName = (TextView) v.findViewById(R.id.tvRealName);
+		tvRealName.setText(u.getName());
+		// set tweeter's screenname
+		TextView tvScreenName = (TextView) v.findViewById(R.id.tvScreenName);
+		tvScreenName.setText("@" + u.getScreenName());
+		// set tweet's relative timestamp
+		TextView tvTimeStamp = (TextView) v.findViewById(R.id.tvTimestamp);
+		tvTimeStamp.setText(getFormattedTime(tweet.getCreatedAt()));
 		// set tweet body
 		TextView tvTweetBody = (TextView) v.findViewById(R.id.tvTweetBody);
 		tvTweetBody.setText(Html.fromHtml(tweet.getBody()));
@@ -59,7 +60,7 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 	 * @return the formatted time text for how long ago this tweet was tweeted (eg. "1 day ago")
 	 */
 	private String getFormattedTime(String createdAt) {
-		Date createdDate = null;
+		Date createdDate;
 		Date currentDate = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy"); // eg. Sun Mar 30 04:00:36 +0000 2014
 		try {
@@ -71,43 +72,39 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		if (createdDate == null) {
 			return ""; // for some reason we couldn't properly parse the created date
 		}
-		long timeDiffMs = (currentDate.getTime() - createdDate.getTime()); // in ms
-		long dynamicTimeDiff = timeDiffMs;
+
+		long dynamicTimeDiff = (currentDate.getTime() - createdDate.getTime()); // in ms
 		if (dynamicTimeDiff < 6000) {
-			return "moments ago"; // less than a minute ago
+			return "just now"; // less than a minute ago
 		}
 		dynamicTimeDiff /= 6000; // in minutes
 		if (dynamicTimeDiff < 60) {
-			return getFriendlyTimeTextHelper(dynamicTimeDiff, "min"); // less than an hour ago
+			return getFriendlyTimeTextHelper(dynamicTimeDiff, "m"); // less than an hour ago
 		}
 		dynamicTimeDiff /= 60; // in hours
 		if (dynamicTimeDiff < 24) {
-			return getFriendlyTimeTextHelper(dynamicTimeDiff, "hr"); // less than 1 day ago
+			return getFriendlyTimeTextHelper(dynamicTimeDiff, "h"); // less than 1 day ago
 		}
 		dynamicTimeDiff /= 24; // in days
-		if (dynamicTimeDiff < 6) {
-			return getFriendlyTimeTextHelper(dynamicTimeDiff, "day"); // less than 6 days ago
+		if (dynamicTimeDiff < 7) {
+			return getFriendlyTimeTextHelper(dynamicTimeDiff, "d"); // less than 7 days ago
 		}
 		dynamicTimeDiff /= 7; // in weeks
 		if (dynamicTimeDiff < 5) {
-			return getFriendlyTimeTextHelper(dynamicTimeDiff, "week"); // less than 5 weeks ago
+			return getFriendlyTimeTextHelper(dynamicTimeDiff, "w"); // less than 5 weeks ago
 		}
-		// if more than 5 weeks ago, then just show the simplified date for the tweet (eg. Mar 01 '13)
-		SimpleDateFormat friendlyFormatter = new SimpleDateFormat("MMM dd 'yy");
-		return friendlyFormatter.format(new Date(timeDiffMs));
+		// if more than 5 weeks ago, then just show the simplified date for the tweet (eg. Mar 01 2013)
+		SimpleDateFormat minimalFormatter = new SimpleDateFormat("MMM dd yyyy");
+		return minimalFormatter.format(createdDate);
 	}
 
 	/**
-	 * Returns a friendly, correctly-pluralized time text (eg. 1 min ago, 2 hrs ago)
+	 * Returns a friendly time text (eg. "1m" or "2h")
 	 * @param qty		number of units
 	 * @param unit		string to pluralize
 	 * @return
 	 */
 	private String getFriendlyTimeTextHelper(long qty, String unit) {
-		int intQty = (int)qty;
-		if (intQty >= 2) { // because we will cast this value to int, we're going to
-			unit += "s";
-		}
-		return intQty + " " + unit + " ago";
+		return (int)qty + unit;
 	}
 }

@@ -51,7 +51,7 @@ public class Tweet extends BaseModel{
 	public static ArrayList<Tweet> fromJson(JSONArray jsonArray) {
 		ArrayList<Tweet> tweets = new ArrayList<Tweet>(jsonArray.length());
 		for (int i=0; i<jsonArray.length(); i++) {
-			JSONObject tweetJson = null;
+			JSONObject tweetJson;
 			try {
 				tweetJson = jsonArray.getJSONObject(i);
 			} catch (Exception e) {
