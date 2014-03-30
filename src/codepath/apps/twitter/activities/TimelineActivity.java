@@ -124,13 +124,14 @@ public class TimelineActivity extends Activity {
 				@Override
 				public void onSuccess(JSONArray jsonTweets) {
 					ArrayList<Tweet> tweets = Tweet.fromJson(jsonTweets);
+					long lastOldestTweetId = currentOldestTweetId;
 					// oldest tweet ID should be the lowest ID value
 					Iterator<Tweet> iter = tweets.iterator();
 					while (iter.hasNext()) {
 						Tweet oldTweet = iter.next();
 						long id = oldTweet.getId();
-						if (currentOldestTweetId < 0 || id < currentOldestTweetId) {
-							if (tweetsList.indexOf(oldTweet) >= 0) {
+						if (currentOldestTweetId < 0 || id <= currentOldestTweetId) {
+							if (id == lastOldestTweetId) {
 								iter.remove(); // duplicate entry. remove.
 							} else {
 								currentOldestTweetId = id; // otherwise set this id as the oldest
