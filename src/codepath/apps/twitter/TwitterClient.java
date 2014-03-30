@@ -48,4 +48,16 @@ public class TwitterClient extends OAuthBaseClient {
 		String url = getApiUrl("statuses/home_timeline.json");
 		client.get(url, params, handler);
 	}
+
+	/**
+	 * Posts a tweet given its body
+	 * @param tweetBody		the tweet's content
+	 * @param handler		the response handler
+	 */
+	public void postTweet(String tweetBody, AsyncHttpResponseHandler handler) {
+		RequestParams params = new RequestParams();
+		params.put("status", tweetBody);
+		String url = getApiUrl("statuses/update.json");
+		client.post(url, params, handler);
+	}
 }

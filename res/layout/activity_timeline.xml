@@ -20,4 +20,27 @@
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
 			android:layout_centerHorizontal="true" />
+
+	<LinearLayout
+			android:orientation="horizontal"
+			android:id="@+id/llCompose"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@drawable/gray_border"
+			android:paddingLeft="5dp"
+			android:paddingBottom="5dp"
+			android:paddingRight="5dp"
+			android:paddingTop="10dp"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentBottom="true">
+		<ImageButton
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@string/compose_desc"
+				android:id="@+id/ibtnCompose"
+				android:onClick="onCompose"
+				android:background="@null"
+				android:src="@drawable/btn_compose"/>
+	</LinearLayout>
+
 </RelativeLayout>
