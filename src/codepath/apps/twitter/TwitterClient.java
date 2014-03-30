@@ -30,14 +30,18 @@ public class TwitterClient extends OAuthBaseClient {
         super(context, REST_API_CLASS, REST_URL, REST_CONSUMER_KEY, REST_CONSUMER_SECRET, REST_CALLBACK_URL);
     }
 
-	/** gets the home timeline of the user */
-	public void getHomeTimeline(AsyncHttpResponseHandler handler) {
+	/**
+	 * Gets the tweets from the home timeline for the user
+	 * @param maxId		max_id param indicating the ID of the oldest tweet we have right now
+	 * @param handler	the response handler
+	 */
+	public void getHomeTimeline(long maxId, AsyncHttpResponseHandler handler) {
+		RequestParams params = null;
+		if (maxId >= 0) {
+			params = new RequestParams();
+			params.put("max_id", Long.toString(maxId));
+		}
 		String url = getApiUrl("statuses/home_timeline.json");
-		client.get(url, null, handler);
-	}
-    
-    public void getUserAccount(AsyncHttpResponseHandler handler) {
-		String url = getApiUrl("account/settings.json");
-		client.get(url, null, handler);
+		client.get(url, params, handler);
 	}
 }

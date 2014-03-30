@@ -9,7 +9,6 @@ import codepath.apps.twitter.TwitterApp;
 import codepath.apps.twitter.adapters.TweetsAdapter;
 import codepath.apps.twitter.helpers.EndlessScrollListener;
 import codepath.apps.twitter.models.Tweet;
-import codepath.apps.twitter.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,8 +27,12 @@ public class TimelineActivity extends Activity {
 	/** tweets adapter */
 	private TweetsAdapter adapter;
 
-	private User accountUser;
-	private int userUtcOffsetSecs;
+	/** the current id of the oldest tweet we pulled (must be positive) */
+	private long currentOldestTweetId = -1;
+	/** if true, then we are still awaiting a response from the previous tweets request */
+	private boolean isFetchingTweets = false;
+	/** if true, then we want to request more (older) tweets */
+	private boolean areOlderTweetsWanted = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,9 +41,6 @@ public class TimelineActivity extends Activity {
 		setupViews();
 		setupListeners();
 		getMoreTweets(true);
-
-		accountUser = User.fromJsonString(getIntent().getStringExtra(LoginActivity.ACCOUNT_USER_EXTRA));
-		userUtcOffsetSecs = accountUser.getUtcOffsetSecs();
 	}
 
 	/** setups the views */
@@ -62,19 +62,42 @@ public class TimelineActivity extends Activity {
 
 	/** makes request to get more tweets */
 	private void getMoreTweets(final boolean clearList) {
-		TwitterApp.getRestClient().getHomeTimeline(new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(JSONArray jsonTweets) {
-				if (clearList) {
-					adapter.clear();
+		if (isFetchingTweets) {
+			areOlderTweetsWanted = true; // can't make request because we're still waiting for previous request to come back
+		} else {
+			// if no pending fetches, then make the request
+			isFetchingTweets = true;
+			TwitterApp.getRestClient().getHomeTimeline(currentOldestTweetId, new JsonHttpResponseHandler() {
+				@Override
+				public void onSuccess(JSONArray jsonTweets) {
+					ArrayList<Tweet> tweets = Tweet.fromJson(jsonTweets);
+					// oldest tweet ID should be the lowest ID value
+					for (int i=0; i < tweets.size(); i++) {
+						long id = tweets.get(i).getId();
+						if (id < currentOldestTweetId || currentOldestTweetId < 0) {
+							currentOldestTweetId = id;
+						}
+					}
+					// refresh adapter
+					if (clearList) {
+						adapter.clear();
+					}
+					adapter.addAll(tweets);
+					// reset flag because we're no longer waiting for a response
+					isFetchingTweets = false;
+					if (areOlderTweetsWanted) {
+						// if we previously wanted to get more tweets but was denied because of another request in process,
+						// then we can now make the call to get more tweets
+						getMoreTweets(false);
+						areOlderTweetsWanted = false;
+					}
 				}
-				adapter.addAll(Tweet.fromJson(jsonTweets));
-				Log.d("nguo", jsonTweets.toString());
-			}
-		});
-	}
 
-	public int getUserUtcOffsetSecs() {
-		return userUtcOffsetSecs;
+				@Override
+				public void onFailure(Throwable throwable, JSONObject jsonObject) {
+					Log.d("networking", "failed getMoreTweets:: " + jsonObject.toString());
+				}
+			});
+		}
 	}
 }

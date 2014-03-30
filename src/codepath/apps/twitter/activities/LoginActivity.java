@@ -2,23 +2,16 @@ package codepath.apps.twitter.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-
 import codepath.apps.twitter.R;
-import codepath.apps.twitter.TwitterApp;
 import codepath.apps.twitter.TwitterClient;
-import codepath.apps.twitter.models.User;
 import com.codepath.oauth.OAuthLoginActivity;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import org.json.JSONObject;
 
 /**
  * LoginActivity - Login screen
  */
 public class LoginActivity extends OAuthLoginActivity<TwitterClient> {
-	public static final String ACCOUNT_USER_EXTRA = "account_user";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +30,8 @@ public class LoginActivity extends OAuthLoginActivity<TwitterClient> {
 	// i.e Display application "homepage"
     @Override
     public void onLoginSuccess() {
-		TwitterApp.getRestClient().getUserAccount(new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(JSONObject jsonUser) {
-				Intent i = new Intent(getBaseContext(), TimelineActivity.class);
-				i.putExtra(ACCOUNT_USER_EXTRA, jsonUser.toString());
-				startActivity(i);
-			}
-
-			@Override
-			public void onFailure(Throwable throwable, JSONObject jsonObject) {
-				super.onFailure(throwable, jsonObject);    //To change body of overridden methods use File | Settings | File Templates.
-			}
-		});
+		Intent i = new Intent(getBaseContext(), TimelineActivity.class);
+		startActivity(i);
     }
     
     // OAuth authentication flow failed, handle the error
