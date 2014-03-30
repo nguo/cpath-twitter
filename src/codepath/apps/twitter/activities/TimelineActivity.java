@@ -3,6 +3,9 @@ package codepath.apps.twitter.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 import codepath.apps.twitter.R;
 import codepath.apps.twitter.TwitterApp;
 import codepath.apps.twitter.adapters.TweetsAdapter;
@@ -22,6 +25,7 @@ import java.util.LinkedList;
 public class TimelineActivity extends Activity {
 	// views
 	private PullToRefreshListView lvTweets;
+	private ProgressBar pbCenter;
 
 	/** list of tweets */
 	private LinkedList<Tweet> tweetsList = new LinkedList<Tweet>();
@@ -47,9 +51,24 @@ public class TimelineActivity extends Activity {
 
 	/** setups the views */
 	private void setupViews() {
+		pbCenter = (ProgressBar) findViewById(R.id.pbCenter);
 		lvTweets = (PullToRefreshListView) findViewById(R.id.lvTweets);
+		View footerView = getLayoutInflater().inflate(R.layout.lv_footer_item, null);
+		lvTweets.addFooterView(footerView);
 		adapter = new TweetsAdapter(this, tweetsList);
 		lvTweets.setAdapter(adapter);
+		toggleCenterProgressBar(true);
+	}
+
+	/** toggles the visibility of the listview and the progress bar */
+	private void toggleCenterProgressBar(boolean showPb) {
+		if (showPb) {
+			lvTweets.setVisibility(View.INVISIBLE);
+			pbCenter.setVisibility(View.VISIBLE);
+		} else {
+			pbCenter.setVisibility(View.INVISIBLE);
+			lvTweets.setVisibility(View.VISIBLE);
+		}
 	}
 
 	/** setups the listeners on the views */
@@ -101,7 +120,8 @@ public class TimelineActivity extends Activity {
 					if (posOfDuplicate >= 0) {
 						tweets.remove(posOfDuplicate);
 					}
-					// refresh adapter
+					// show listview and refresh adapter
+					toggleCenterProgressBar(false);
 					if (clearList) {
 						adapter.clear();
 					}
@@ -118,6 +138,7 @@ public class TimelineActivity extends Activity {
 
 				@Override
 				public void onFailure(Throwable throwable, JSONObject jsonObject) {
+					Toast.makeText(getBaseContext(), "Failed to get tweets -- searching for tweets too frequently.", Toast.LENGTH_LONG).show();
 					Log.d("networking", "failed getMoreOldTweets:: " + jsonObject.toString());
 				}
 			});
