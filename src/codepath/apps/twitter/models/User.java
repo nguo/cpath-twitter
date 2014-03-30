@@ -1,68 +1,45 @@
 package codepath.apps.twitter.models;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * User - model for twitter user
  */
-public class User extends BaseModel {
-	public String getName() {
-		return getString("name");
-	}
+public class User {
+	private String name;
+	private String screenName;
+	private long id;
+	private String profileImageUrl;
+	public int numTweets;
 
 	public long getId() {
-		return getLong("id");
+		return id;
 	}
 
-	public String getScreenName() {
-		return getString("screen_name");
-	}
-
-	public String getProfileImageUrl() {
-		return getString("profile_image_url");
-	}
-
-	public String getProfileBackgroundImageUrl() {
-		return getString("profile_background_image_url");
+	public String getName() {
+		return name;
 	}
 
 	public int getNumTweets() {
-		return getInt("statuses_count");
+		return numTweets;
 	}
 
-	public int getFollowersCount() {
-		return getInt("followers_count");
+	public String getProfileImageUrl() {
+		return profileImageUrl;
 	}
 
-	public int getUtcOffsetSecs() {
-		int offset = 0;
-		JSONObject timezone = getJSONObject("time_zone");
-		if (timezone != null) {
-			try {
-				offset = timezone.getInt("utc_offset");
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-		return offset;
+	public String getScreenName() {
+		return screenName;
 	}
 
 	public static User fromJson(JSONObject json) {
 		User u = new User();
 		try {
-			u.jsonObject = json;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		return u;
-	}
-
-	public static User fromJsonString(String jsonString) {
-		User u = new User();
-		try {
-			u.jsonObject = new JSONObject(jsonString);
+			u.name = json.getString("name");
+			u.screenName = json.getString("screen_name");
+			u.id = json.getLong("id");
+			u.profileImageUrl = json.getString("profile_image_url");
+			u.numTweets = json.getInt("statuses_count");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

@@ -9,38 +9,35 @@ import java.util.ArrayList;
 /**
  * Tweet - model representing a tweet
  */
-public class Tweet extends BaseModel{
+public class Tweet {
 	private User user;
+	private String body;
+	private long id;
+	private String createdAt;
+
+	public String getBody() {
+		return body;
+	}
+
+	public long getId() {
+		return id;
+	}
 
 	public User getUser() {
 		return user;
 	}
 
-	public String getBody() {
-		return getString("text");
-	}
-
-	public long getId() {
-		return getLong("id");
-	}
-
-	public boolean isFavorited() {
-		return getBoolean("favorited");
-	}
-
-	public boolean isRetweeted() {
-		return getBoolean("retweeted");
-	}
-
 	public String getCreatedAt() {
-		return getString("created_at");
+		return createdAt;
 	}
 
 	public static Tweet fromJson(JSONObject jsonObject) {
 		Tweet tweet = new Tweet();
 		try {
-			tweet.jsonObject = jsonObject;
 			tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
+			tweet.body = jsonObject.getString("text");
+			tweet.id = jsonObject.getLong("id");
+			tweet.createdAt = jsonObject.getString("created_at");
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return null;
