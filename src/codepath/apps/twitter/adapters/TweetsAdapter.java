@@ -1,7 +1,12 @@
 package codepath.apps.twitter.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +55,7 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		tvTimeStamp.setText(getFormattedTime(tweet.getCreatedAt()));
 		// set tweet body
 		TextView tvTweetBody = (TextView) v.findViewById(R.id.tvTweetBody);
-		tvTweetBody.setText(Html.fromHtml(tweet.getBody()));
+		setTextViewHTML(tvTweetBody, tweet.getBody());
 		return v;
 	}
 
@@ -106,5 +111,43 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 	 */
 	private String getFriendlyTimeTextHelper(long qty, String unit) {
 		return (int)qty + unit;
+	}
+
+	/**
+	 * Setup clickable span with onClick listener for the string builder
+	 * @param strBuilder	string builder to use
+	 * @param span			span that contains url info
+	 */
+	protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
+		int start = strBuilder.getSpanStart(span);
+		int end = strBuilder.getSpanEnd(span);
+		int flags = strBuilder.getSpanFlags(span);
+		ClickableSpan clickable = new ClickableSpan() {
+			public void onClick(View view) {
+				// Do something with span.getURL() to handle the link click...
+				Intent launchBrowser = new Intent(Intent.ACTION_VIEW, Uri.parse(span.getURL()));
+				getContext().startActivity(launchBrowser);
+			}
+		};
+		strBuilder.setSpan(clickable, start, end, flags);
+		strBuilder.removeSpan(span);
+	}
+
+	/**
+	 * Makes the textview clickable with friendly html text
+	 * @param tv		textview to set text for
+	 * @param nonhtml	tweet body before href treatment
+	 */
+	protected void setTextViewHTML(TextView tv, String nonhtml) {
+		// get friendly text char sequence
+		CharSequence sequence = Html.fromHtml(nonhtml.replaceAll("(http(s?)://(t\\.co/(\\p{alnum}+)))", "<a href=\"$1\">$3</a>"));
+		// create string builder
+		SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+		URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+		for(URLSpan span : urls) {
+			makeLinkClickable(strBuilder, span); // make the links clickable
+		}
+		// set the textview text
+		tv.setText(strBuilder);
 	}
 }

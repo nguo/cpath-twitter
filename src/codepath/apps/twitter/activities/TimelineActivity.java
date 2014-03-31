@@ -166,8 +166,12 @@ public class TimelineActivity extends Activity {
 
 				@Override
 				public void onFailure(Throwable throwable, JSONObject jsonObject) {
-					Toast.makeText(getBaseContext(), "Failed to retrieve tweets -- getting tweets too frequently.", Toast.LENGTH_LONG).show();
-					Log.d("networking", "failed getMoreOldTweets:: " + jsonObject.toString());
+					try {
+						JSONArray errorsArray = jsonObject.getJSONArray("errors");
+						Toast.makeText(getBaseContext(), "Failed to retrieve tweets: "
+								+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
+						Log.d("networking", "failed getMoreOldTweets:: " + jsonObject.toString());
+					} catch (JSONException e) {}
 				}
 			});
 		}
