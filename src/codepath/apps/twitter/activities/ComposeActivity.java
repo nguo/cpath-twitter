@@ -74,12 +74,12 @@ public class ComposeActivity extends Activity {
 
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
+				miTweet.setEnabled(true);
 				try {
 					JSONArray errorsArray = jsonObject.getJSONArray("errors");
 					Toast.makeText(getBaseContext(), "Failed to post tweet: "
 							+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
 				} catch (JSONException e) {}
-				miTweet.setEnabled(true);
 			}
 		});
 	}

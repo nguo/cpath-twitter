@@ -1,7 +1,10 @@
 package codepath.apps.twitter.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,6 +46,7 @@ public class TimelineActivity extends Activity {
 	public static final String USER_PROFILE_IMAGE_URL_EXTRA = "user_profile_image_url";
 
 	// views
+	private MenuItem miCompose;
 	private PullToRefreshListView lvTweets;
 	private ProgressBar pbCenter;
 	private LinearLayout llCompose;
@@ -85,6 +89,8 @@ public class TimelineActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.timeline, menu);
+		miCompose = menu.findItem(R.id.miCompose);
+		miCompose.setEnabled(false);
 		return true;
 	}
 
@@ -166,6 +172,9 @@ public class TimelineActivity extends Activity {
 	private void getOldTweets() {
 		if (getInitialTweetsFromDb()) {
 			return; // no need to do anything more because we set got the tweets from the db
+		} else if (!isNetworkAvailable()) {
+			// don't try to make requests and let the user know that there's no internet connection
+			Toast.makeText(this, "Please connect to a network.", Toast.LENGTH_LONG).show();
 		} else if (isFetchingTweets) {
 			areOlderTweetsWanted = true; // can't make request because we're still waiting for previous request to come back
 		} else {
@@ -222,6 +231,13 @@ public class TimelineActivity extends Activity {
 
 	/** fetches newer tweets */
 	private void getNewTweets() {
+		// if there's no internet, don't try to get tweets
+		if (!isNetworkAvailable()) {
+			Toast.makeText(this, "Please connect to a network.", Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		// proceed when network is available...
 		TwitterApp.getRestClient().getHomeTimeline(-1, currentNewestTweetId, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONArray jsonTweets) {
@@ -262,11 +278,20 @@ public class TimelineActivity extends Activity {
 
 	/** gets the user's account info */
 	private void getUserInfo() {
+		// if there's no internet, don't try to get user info
+		if (!isNetworkAvailable()) {
+			Toast.makeText(this, "Please connect to a network.", Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		// proceed when network is available...
 		TwitterApp.getRestClient().getUserAccount(new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(JSONObject jsonObject) {
 				accountUser = User.fromJson(jsonObject);
+				// enable compose elements
 				llCompose.setVisibility(View.VISIBLE);
+				miCompose.setEnabled(true);
 			}
 
 			@Override
@@ -284,10 +309,19 @@ public class TimelineActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK && requestCode == COMPOSE_REQUEST_CODE) {
 			Tweet t = (Tweet) data.getSerializableExtra(POSTED_TWEET_EXTRA);
+			trySaveTweet(t);
 			tweetsList.addFirst(t);
 			adapter.notifyDataSetChanged();
 			lastPostedTweetIds.add(t.getTweetId());
 		}
+	}
+
+	/** @return true if there is network connection */
+	private boolean isNetworkAvailable() {
+		ConnectivityManager connectivityManager
+				= (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 
 	/** Callback for when the compose button is pressed */
