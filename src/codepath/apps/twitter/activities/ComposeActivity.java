@@ -16,6 +16,8 @@ import codepath.apps.twitter.TwitterApp;
 import codepath.apps.twitter.models.Tweet;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -72,9 +74,12 @@ public class ComposeActivity extends Activity {
 
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
-				Toast.makeText(getBaseContext(), "Failed to post tweet ", Toast.LENGTH_LONG).show();
+				try {
+					JSONArray errorsArray = jsonObject.getJSONArray("errors");
+					Toast.makeText(getBaseContext(), "Failed to post tweet: "
+							+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
+				} catch (JSONException e) {}
 				miTweet.setEnabled(true);
-				Log.d("networking", "Failed to post tweet.... " + jsonObject.toString());
 			}
 		});
 	}

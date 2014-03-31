@@ -3,7 +3,6 @@ package codepath.apps.twitter.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,6 +16,7 @@ import codepath.apps.twitter.adapters.TweetsAdapter;
 import codepath.apps.twitter.helpers.EndlessScrollListener;
 import codepath.apps.twitter.models.Tweet;
 import codepath.apps.twitter.models.User;
+import com.activeandroid.ActiveAndroid;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import eu.erikw.PullToRefreshListView;
 import org.json.JSONArray;
@@ -69,10 +69,16 @@ public class TimelineActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_timeline);
+		ActiveAndroid.initialize(this);
 		setupViews();
 		setupListeners();
 		getUserInfo();
-		getOldTweets();
+	}
+
+	@Override
+	protected void onDestroy() {
+		ActiveAndroid.dispose();
+		super.onDestroy();
 	}
 
 	@Override
@@ -123,9 +129,44 @@ public class TimelineActivity extends Activity {
 		});
 	}
 
+	/**
+	 * On the initial tweets retrieval, try to get the tweets from db
+	 * @return		true if we succeeded in getting tweets from db
+	 */
+	private boolean getInitialTweetsFromDb() {
+		boolean success = false;
+		if (tweetsList.size() == 0) {
+			tweetsList.addAll(Tweet.recentItems());
+			if (tweetsList.size() > 0) {
+				currentNewestTweetId = tweetsList.getLast().getTweetId();
+				currentOldestTweetId = tweetsList.getFirst().getTweetId();
+				toggleCenterProgressBar(false);
+				adapter.notifyDataSetChanged();
+				success = true;
+			}
+		}
+		return success;
+	}
+
+	/**
+	 * tries to save the given tweet into the db
+	 * @param tweet		tweet to save
+	 */
+	private void trySaveTweet(Tweet tweet) {
+		// only save tweet if it's not already in the db
+		if (Tweet.byTweetId(tweet.getTweetId()) == null) {
+			if (!tweet.setUserUsingDb()) { // only save the user if it's not already in the db
+				tweet.getUser().save();
+			}
+			tweet.save();
+		}
+	}
+
 	/** makes request to get old tweets */
 	private void getOldTweets() {
-		if (isFetchingTweets) {
+		if (getInitialTweetsFromDb()) {
+			return; // no need to do anything more because we set got the tweets from the db
+		} else if (isFetchingTweets) {
 			areOlderTweetsWanted = true; // can't make request because we're still waiting for previous request to come back
 		} else {
 			// if no pending fetches, then make the request
@@ -138,13 +179,16 @@ public class TimelineActivity extends Activity {
 					// oldest tweet ID should be the lowest ID value
 					Iterator<Tweet> iter = tweets.iterator();
 					while (iter.hasNext()) {
-						long id = iter.next().getId();
-						if (currentOldestTweetId < 0 || id <= currentOldestTweetId) {
-							if (id == lastOldestTweetId) {
-								iter.remove(); // duplicate entry. remove.
-							} else {
-								currentOldestTweetId = id; // otherwise set this id as the oldest
-							}
+						Tweet currTweet = iter.next();
+						long id = currTweet.getTweetId();
+						if (id == lastOldestTweetId) {
+							iter.remove(); // duplicate entry. remove. don't want to handle it further
+							continue;
+						}
+						// try to save the current tweet into the db
+						trySaveTweet(currTweet);
+						if (currentOldestTweetId < 0 || id < currentOldestTweetId) {
+							currentOldestTweetId = id; // otherwise set this id as the oldest
 						}
 						// also update newest tweet ID so we can use this later when we get new tweets
 						if (id > currentNewestTweetId) {
@@ -170,7 +214,6 @@ public class TimelineActivity extends Activity {
 						JSONArray errorsArray = jsonObject.getJSONArray("errors");
 						Toast.makeText(getBaseContext(), "Failed to retrieve tweets: "
 								+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
-						Log.d("networking", "failed getMoreOldTweets:: " + jsonObject.toString());
 					} catch (JSONException e) {}
 				}
 			});
@@ -186,12 +229,17 @@ public class TimelineActivity extends Activity {
 				// newest tweet ID should have the highest ID value
 				Iterator<Tweet> iter = tweets.iterator();
 				while (iter.hasNext()) {
-					long id = iter.next().getId();
+					Tweet currTweet = iter.next();
+					long id = currTweet.getTweetId();
 					if (lastPostedTweetIds.indexOf(id) >= 0) {
 						// because we updated the timeline with the last posted tweet without making a request,
 						// we need to remove the same tweet from the newest tweets retrieved from the server so that the tweet isn't duplicated
 						iter.remove();
-					} else if (id > currentNewestTweetId) {
+						continue; // don't need to handle further
+					}
+					// try to save the current tweet into the db
+					trySaveTweet(currTweet);
+					if (id > currentNewestTweetId) {
 						currentNewestTweetId = id;
 					}
 				}
@@ -203,7 +251,11 @@ public class TimelineActivity extends Activity {
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
 				lvTweets.onRefreshComplete();
-				Log.d("networking", "failed getNewTweets:: " + jsonObject.toString());
+				try {
+					JSONArray errorsArray = jsonObject.getJSONArray("errors");
+					Toast.makeText(getBaseContext(), "Failed to retrieve new tweets: "
+							+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
+				} catch (JSONException e) {}
 			}
 		});
 	}
@@ -219,8 +271,11 @@ public class TimelineActivity extends Activity {
 
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
-				Toast.makeText(getBaseContext(), "Failed to retrieve user info -- trying to get the info too frequently.", Toast.LENGTH_LONG).show();
-				Log.d("networking", "failed getUserInfo:: " + jsonObject.toString());
+				try {
+					JSONArray errorsArray = jsonObject.getJSONArray("errors");
+					Toast.makeText(getBaseContext(), "Failed to retrieve user info: "
+							+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
+				} catch (JSONException e) {}
 			}
 		});
 	}
@@ -231,7 +286,7 @@ public class TimelineActivity extends Activity {
 			Tweet t = (Tweet) data.getSerializableExtra(POSTED_TWEET_EXTRA);
 			tweetsList.addFirst(t);
 			adapter.notifyDataSetChanged();
-			lastPostedTweetIds.add(t.getId());
+			lastPostedTweetIds.add(t.getTweetId());
 		}
 	}
 
