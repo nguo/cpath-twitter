@@ -16,6 +16,7 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:actionBarStyle">@style/MyActionBar</item>
 		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:typeface">sans</item>
     </style>
 
 	<style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
