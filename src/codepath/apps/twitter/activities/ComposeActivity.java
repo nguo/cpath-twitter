@@ -3,10 +3,10 @@ package codepath.apps.twitter.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,6 +24,7 @@ import org.json.JSONObject;
 public class ComposeActivity extends Activity {
 	// views
 	MenuItem miTweet;
+	MenuItem miCharactersLeft;
 	ImageView ivUserProfile;
 	TextView tvUserRealName;
 	TextView tvUserScreenName;
@@ -43,6 +44,8 @@ public class ComposeActivity extends Activity {
 		ImageLoader.getInstance().displayImage(i.getStringExtra(TimelineActivity.USER_PROFILE_IMAGE_URL_EXTRA), ivUserProfile);
 		tvUserRealName.setText(i.getStringExtra(TimelineActivity.USER_NAME_EXTRA));
 		tvUserScreenName.setText("@"+i.getStringExtra(TimelineActivity.USER_SCREEN_NAME_EXTRA));
+		// set up listeners
+		etBody.addTextChangedListener(new InputValidator());
 	}
 
 	@Override
@@ -50,6 +53,7 @@ public class ComposeActivity extends Activity {
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.compose, menu);
 		miTweet = menu.findItem(R.id.miTweet);
+		miCharactersLeft = menu.findItem(R.id.miCharactersLeft);
 		return true;
 	}
 
@@ -73,5 +77,22 @@ public class ComposeActivity extends Activity {
 				Log.d("networking", "Failed to post tweet.... " + jsonObject.toString());
 			}
 		});
+	}
+
+	/** input validator class that listens for text change and makes modifications based on text change */
+	private class InputValidator implements TextWatcher {
+		public void afterTextChanged(Editable s) {}
+		public void beforeTextChanged(CharSequence s, int start, int count,
+									  int after) {}
+		public void onTextChanged(CharSequence s, int start, int before,
+								  int count) {
+			// track number of characters left in the tweet on the action bar
+			int limit = Integer.parseInt(miCharactersLeft.getTitle().toString());
+			if (before > 0) {
+				miCharactersLeft.setTitle(Integer.toString(limit+1));
+			} else if (count > 0) {
+				miCharactersLeft.setTitle(Integer.toString(limit-1));
+			}
+		}
 	}
 }

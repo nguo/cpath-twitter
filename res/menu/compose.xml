@@ -2,6 +2,11 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item
+			android:id="@+id/miCharactersLeft"
+			android:showAsAction="always"
+			android:title="@string/max_characters"/>
+
+	<item
 			android:id="@+id/miTweet"
 			android:showAsAction="always"
 			android:onClick="onTweet"

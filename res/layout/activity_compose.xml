@@ -42,6 +42,7 @@
 			android:hint="@string/compose_hint"
 			android:id="@+id/etBody"
 			android:background="@null"
+			android:maxLength="140"
 			android:layout_alignParentLeft="true"
 			android:layout_below="@+id/llUserInfoCompose"
 			android:layout_marginLeft="15dp"

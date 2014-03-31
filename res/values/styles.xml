@@ -21,6 +21,8 @@
 	<style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
 		<item name="android:background">@color/twitter_blue</item>
 		<item name="android:titleTextStyle">@style/MyActionBarTitleTextStyle</item>
+		<item name="android:showDividers">beginning</item>
+		<item name="android:divider">@color/twitter_gray</item>
 	</style>
 
 	<style name="MyActionBarTitleTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
