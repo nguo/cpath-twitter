@@ -46,10 +46,10 @@ public class TimelineActivity extends Activity {
 	public static final String USER_PROFILE_IMAGE_URL_EXTRA = "user_profile_image_url";
 
 	// views
-	private MenuItem miCompose;
+	private MenuItem miCompose; // hide before user info is retrieved because the compose activity needs it
 	private PullToRefreshListView lvTweets;
 	private ProgressBar pbCenter;
-	private LinearLayout llCompose;
+	private LinearLayout llCompose; // hide before user info is retrieved because the compose activity needs it
 
 	/** list of tweets */
 	private LinkedList<Tweet> tweetsList = new LinkedList<Tweet>();
@@ -292,6 +292,7 @@ public class TimelineActivity extends Activity {
 				// enable compose elements
 				llCompose.setVisibility(View.VISIBLE);
 				miCompose.setEnabled(true);
+				miCompose.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 			}
 
 			@Override

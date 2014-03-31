@@ -3,7 +3,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item
 			android:id="@+id/miCompose"
-			android:showAsAction="always"
+			android:showAsAction="never"
 			android:onClick="onCompose"
 			android:icon="@drawable/ic_compose"
 			android:title="@string/compose_name"/>
