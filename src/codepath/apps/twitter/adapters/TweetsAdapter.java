@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import codepath.apps.twitter.R;
+import codepath.apps.twitter.models.ImageButtonData;
 import codepath.apps.twitter.models.Tweet;
 import codepath.apps.twitter.models.User;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -44,6 +46,11 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		// load tweeter's profile image
 		ImageView ivProfile = (ImageView) v.findViewById(R.id.ivProfile);
 		ImageLoader.getInstance().displayImage(tweet.getUser().getProfileImageUrl(), ivProfile);
+		// set tweet statuses
+		setupFavButtons(tweet, v);
+		setupRetweetButtons(tweet, v);
+		ImageButton ibtnReply = (ImageButton) v.findViewById(R.id.ibtnReply);
+		ibtnReply.setTag(tweet.getTweetId());
 		// set tweeter's real name
 		TextView tvRealName = (TextView) v.findViewById(R.id.tvRealName);
 		tvRealName.setText(u.getName());
@@ -57,6 +64,36 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		TextView tvTweetBody = (TextView) v.findViewById(R.id.tvTweetBody);
 		setTextViewHTML(tvTweetBody, tweet.getBody());
 		return v;
+	}
+
+	/** setups the favorite buttons */
+	private void setupFavButtons(Tweet tweet, View v) {
+		ImageButton ibtnFavorite = (ImageButton) v.findViewById(R.id.ibtnFavorite);
+		ImageButton ibtnUnfavorite = (ImageButton) v.findViewById(R.id.ibtnUnfavorite);
+		if (tweet.isFavorited()) {
+			ibtnUnfavorite.setVisibility(View.INVISIBLE);
+			ibtnFavorite.setVisibility(View.VISIBLE);
+		} else {
+			ibtnFavorite.setVisibility(View.INVISIBLE);
+			ibtnUnfavorite.setVisibility(View.VISIBLE);
+		}
+		ibtnFavorite.setTag(new ImageButtonData(ibtnUnfavorite, tweet));
+		ibtnUnfavorite.setTag(new ImageButtonData(ibtnFavorite, tweet));
+	}
+
+	/** setups the retweet buttons */
+	private void setupRetweetButtons(Tweet tweet, View v) {
+		ImageButton ibtnRetweet = (ImageButton) v.findViewById(R.id.ibtnRetweet);
+		ImageButton ibtnRetweetUnselected = (ImageButton) v.findViewById(R.id.ibtnRetweetUnselected);
+		if (tweet.isRetweeted()) {
+			ibtnRetweetUnselected.setVisibility(View.INVISIBLE);
+			ibtnRetweet.setVisibility(View.VISIBLE);
+		} else {
+			ibtnRetweet.setVisibility(View.INVISIBLE);
+			ibtnRetweetUnselected.setVisibility(View.VISIBLE);
+		}
+		ibtnRetweet.setTag(new ImageButtonData(ibtnRetweetUnselected, tweet));
+		ibtnRetweetUnselected.setTag(new ImageButtonData(ibtnRetweet, tweet));
 	}
 
 	/**

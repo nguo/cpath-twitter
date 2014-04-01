@@ -46,6 +46,7 @@ public class ComposeActivity extends Activity {
 		ImageLoader.getInstance().displayImage(i.getStringExtra(TimelineActivity.USER_PROFILE_IMAGE_URL_EXTRA), ivUserProfile);
 		tvUserRealName.setText(i.getStringExtra(TimelineActivity.USER_NAME_EXTRA));
 		tvUserScreenName.setText("@"+i.getStringExtra(TimelineActivity.USER_SCREEN_NAME_EXTRA));
+		etBody.setText(i.getStringExtra(TimelineActivity.PREPOPULATED_STRING_EXTRA));
 		// set up listeners
 		etBody.addTextChangedListener(new InputValidator());
 	}
@@ -56,6 +57,8 @@ public class ComposeActivity extends Activity {
 		menuInflater.inflate(R.menu.compose, menu);
 		miTweet = menu.findItem(R.id.miTweet);
 		miCharactersLeft = menu.findItem(R.id.miCharactersLeft);
+		int limit = Integer.parseInt(miCharactersLeft.getTitle().toString());
+		miCharactersLeft.setTitle(Integer.toString(limit - etBody.getText().length()));
 		return true;
 	}
 
@@ -75,11 +78,7 @@ public class ComposeActivity extends Activity {
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
 				miTweet.setEnabled(true);
-				try {
-					JSONArray errorsArray = jsonObject.getJSONArray("errors");
-					Toast.makeText(getBaseContext(), "Failed to post tweet: "
-							+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
-				} catch (JSONException e) {}
+				TimelineActivity.failureToastHelper(getBaseContext(), "Failed to post tweet: ", jsonObject);
 			}
 		});
 	}

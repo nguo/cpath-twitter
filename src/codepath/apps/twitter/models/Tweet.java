@@ -25,6 +25,20 @@ public class Tweet extends Model implements Serializable {
 	private String body;
 	@Column(name = "createdAt")
 	private String createdAt;
+	@Column(name = "favorited")
+	private boolean favorited;
+
+	public void setFavorited(boolean favorited) {
+		this.favorited = favorited;
+	}
+
+	public void setRetweeted(boolean retweeted) {
+		this.retweeted = retweeted;
+	}
+
+	@Column(name = "retweeted")
+
+	private boolean retweeted;
 
 	public Tweet(){
 		super();
@@ -44,6 +58,14 @@ public class Tweet extends Model implements Serializable {
 
 	public String getCreatedAt() {
 		return createdAt;
+	}
+
+	public boolean isFavorited() {
+		return favorited;
+	}
+
+	public boolean isRetweeted() {
+		return retweeted;
 	}
 
 	/**
@@ -66,6 +88,8 @@ public class Tweet extends Model implements Serializable {
 			tweet.body = jsonObject.getString("text");
 			tweet.tweetId = jsonObject.getLong("id");
 			tweet.createdAt = jsonObject.getString("created_at");
+			tweet.favorited = jsonObject.getBoolean("favorited");
+			tweet.retweeted = jsonObject.getBoolean("retweeted");
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return null;
@@ -90,6 +114,8 @@ public class Tweet extends Model implements Serializable {
 		}
 		return tweets;
 	}
+
+	/********* activeandroid queries **********/
 
 	public static Tweet byTweetId(long tweetId) {
 		return new Select().from(Tweet.class).where("tweetId = ?", tweetId).executeSingle();

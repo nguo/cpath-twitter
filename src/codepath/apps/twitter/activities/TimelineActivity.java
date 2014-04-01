@@ -17,6 +17,7 @@ import codepath.apps.twitter.R;
 import codepath.apps.twitter.TwitterApp;
 import codepath.apps.twitter.adapters.TweetsAdapter;
 import codepath.apps.twitter.helpers.EndlessScrollListener;
+import codepath.apps.twitter.models.ImageButtonData;
 import codepath.apps.twitter.models.Tweet;
 import codepath.apps.twitter.models.User;
 import com.activeandroid.ActiveAndroid;
@@ -44,6 +45,8 @@ public class TimelineActivity extends Activity {
 	public static final String USER_SCREEN_NAME_EXTRA = "user_screen_name";
 	/** name of the intent bundle that contains user's profile image url */
 	public static final String USER_PROFILE_IMAGE_URL_EXTRA = "user_profile_image_url";
+	/** name of the intent bundle that contains some string to prepopulate into the text field */
+	public static final String PREPOPULATED_STRING_EXTRA = "prepopulated_string_extra";
 
 	// views
 	private MenuItem miCompose; // hide before user info is retrieved because the compose activity needs it
@@ -73,16 +76,8 @@ public class TimelineActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_timeline);
-		ActiveAndroid.initialize(this);
 		setupViews();
 		setupListeners();
-		getUserInfo();
-	}
-
-	@Override
-	protected void onDestroy() {
-		ActiveAndroid.dispose();
-		super.onDestroy();
 	}
 
 	@Override
@@ -91,6 +86,7 @@ public class TimelineActivity extends Activity {
 		menuInflater.inflate(R.menu.timeline, menu);
 		miCompose = menu.findItem(R.id.miCompose);
 		miCompose.setEnabled(false);
+		getUserInfo();
 		return true;
 	}
 
@@ -146,8 +142,7 @@ public class TimelineActivity extends Activity {
 			if (tweetsList.size() > 0) {
 				currentNewestTweetId = tweetsList.getLast().getTweetId();
 				currentOldestTweetId = tweetsList.getFirst().getTweetId();
-				toggleCenterProgressBar(false);
-				adapter.notifyDataSetChanged();
+				getNewTweets();
 				success = true;
 			}
 		}
@@ -219,11 +214,7 @@ public class TimelineActivity extends Activity {
 
 				@Override
 				public void onFailure(Throwable throwable, JSONObject jsonObject) {
-					try {
-						JSONArray errorsArray = jsonObject.getJSONArray("errors");
-						Toast.makeText(getBaseContext(), "Failed to retrieve tweets: "
-								+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
-					} catch (JSONException e) {}
+					failureToastHelper(getBaseContext(), "Failed to retrieve tweets: ", jsonObject);
 				}
 			});
 		}
@@ -259,6 +250,7 @@ public class TimelineActivity extends Activity {
 						currentNewestTweetId = id;
 					}
 				}
+				toggleCenterProgressBar(false);
 				tweetsList.addAll(0, tweets);
 				adapter.notifyDataSetChanged();
 				lvTweets.onRefreshComplete();
@@ -267,11 +259,7 @@ public class TimelineActivity extends Activity {
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
 				lvTweets.onRefreshComplete();
-				try {
-					JSONArray errorsArray = jsonObject.getJSONArray("errors");
-					Toast.makeText(getBaseContext(), "Failed to retrieve new tweets: "
-							+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
-				} catch (JSONException e) {}
+				failureToastHelper(getBaseContext(), "Failed to retrieve new tweets: ", jsonObject);
 			}
 		});
 	}
@@ -297,11 +285,7 @@ public class TimelineActivity extends Activity {
 
 			@Override
 			public void onFailure(Throwable throwable, JSONObject jsonObject) {
-				try {
-					JSONArray errorsArray = jsonObject.getJSONArray("errors");
-					Toast.makeText(getBaseContext(), "Failed to retrieve user info: "
-							+ ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
-				} catch (JSONException e) {}
+				failureToastHelper(getBaseContext(), "Failed to retrieve user info: ", jsonObject);
 			}
 		});
 	}
@@ -327,20 +311,100 @@ public class TimelineActivity extends Activity {
 
 	/** Callback for when the compose button is pressed */
 	public void onCompose(View v) {
-		composeHelper();
+		composeHelper("");
 	}
 
 	/** Callback for when the compose button is pressed from the action bar */
 	public void onCompose(MenuItem mi) {
-		composeHelper();
+		composeHelper("");
 	}
 
 	/** helper function that opens the compose activity */
-	private void composeHelper() {
+	private void composeHelper(String prepopulatedStr) {
 		Intent i = new Intent(this, ComposeActivity.class);
 		i.putExtra(USER_NAME_EXTRA, accountUser.getName());
 		i.putExtra(USER_SCREEN_NAME_EXTRA, accountUser.getScreenName());
 		i.putExtra(USER_PROFILE_IMAGE_URL_EXTRA, accountUser.getProfileImageUrl());
+		i.putExtra(PREPOPULATED_STRING_EXTRA, prepopulatedStr);
 		startActivityForResult(i, COMPOSE_REQUEST_CODE);
+	}
+
+	/**
+	 * Helper function that shows a toast when an onFailure result comes back from a request
+	 * @param context		context
+	 * @param prefix		prefix of the toast text
+	 * @param jsonObject	contains info about the error text
+	 */
+	public static void failureToastHelper(Context context, String prefix, JSONObject jsonObject) {
+		try {
+			JSONArray errorsArray = jsonObject.getJSONArray("errors");
+			Toast.makeText(context, prefix + ((JSONObject)errorsArray.get(0)).getString("message"), Toast.LENGTH_LONG).show();
+		} catch (JSONException e) {}
+	}
+
+	/**
+	 * callback when reply button is hit
+	 * @param v		reply button view
+	 */
+	public void onReply(View v) {
+		composeHelper("@"+v.getTag());
+	}
+
+	/**
+	 * callback when retweet button is hit
+	 * @param v		retweet button view
+	 */
+	public void onRetweet(final View v) {
+		final ImageButtonData tag = (ImageButtonData) v.getTag();
+		TwitterApp.getRestClient().retweet(tag.getTweet().getTweetId(), new JsonHttpResponseHandler() {
+			@Override
+			public void onFailure(Throwable throwable, JSONObject jsonObject) {
+				failureToastHelper(getBaseContext(), "Failed to retweet tweet: ", jsonObject);
+			}
+		});
+	}
+
+	/**
+	 * callback when unfavorited button is hit (means user wants to favorite)
+	 * @param v		unfavorite button view
+	 */
+	public void onFavorite(final View v) {
+		ImageButtonData tag = (ImageButtonData) v.getTag();
+		TwitterApp.getRestClient().favorite(tag.getTweet().getTweetId(), new JsonHttpResponseHandler() {
+			@Override
+			public void onSuccess(JSONObject jsonObject) {
+				// show/hide corresponding buttons
+				ImageButtonData tag = (ImageButtonData) v.getTag();
+				v.setVisibility(View.INVISIBLE);
+				tag.getRelatedImageButton().setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onFailure(Throwable throwable, JSONObject jsonObject) {
+				failureToastHelper(getBaseContext(), "Failed to favorite tweet: ", jsonObject);
+			}
+		});
+	}
+
+	/**
+	 * callback when favorited button is hit (means user wants to unfavorite)
+	 * @param v		favorite button view
+	 */
+	public void onUnfavorite(final View v) {
+		ImageButtonData tag = (ImageButtonData) v.getTag();
+		TwitterApp.getRestClient().unfavorite(tag.getTweet().getTweetId(), new JsonHttpResponseHandler() {
+			@Override
+			public void onSuccess(JSONObject jsonObject) {
+				// show/hide corresponding buttons
+				ImageButtonData tag = (ImageButtonData) v.getTag();
+				v.setVisibility(View.INVISIBLE);
+				tag.getRelatedImageButton().setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onFailure(Throwable throwable, JSONObject jsonObject) {
+				failureToastHelper(getBaseContext(), "Failed to unfavorite tweet: ", jsonObject);
+			}
+		});
 	}
 }
