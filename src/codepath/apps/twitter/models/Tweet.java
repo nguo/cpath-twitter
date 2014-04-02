@@ -3,6 +3,7 @@ package codepath.apps.twitter.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,6 +11,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -118,10 +120,20 @@ public class Tweet extends Model implements Serializable {
 	/********* activeandroid queries **********/
 
 	public static Tweet byTweetId(long tweetId) {
-		return new Select().from(Tweet.class).where("tweetId = ?", tweetId).executeSingle();
+		try {
+			return new Select().from(Tweet.class).where("tweetId = ?", tweetId).executeSingle();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static List<Tweet> recentItems() {
-		return new Select().from(Tweet.class).orderBy("tweetId DESC").execute();
+		try {
+			return new Select().from(Tweet.class).orderBy("tweetId DESC").execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new LinkedList<Tweet>();
+		}
 	}
 }

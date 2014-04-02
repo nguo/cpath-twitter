@@ -66,6 +66,11 @@ public class User extends Model implements Serializable {
 	/********* activeandroid queries **********/
 
 	public static User byUserId(long userId) {
-		return new Select().from(User.class).where("userId = ?", userId).executeSingle();
+		try {
+			return new Select().from(User.class).where("userId = ?", userId).executeSingle();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
