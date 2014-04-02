@@ -50,7 +50,7 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		setupFavButtons(tweet, v);
 		setupRetweetButtons(tweet, v);
 		ImageButton ibtnReply = (ImageButton) v.findViewById(R.id.ibtnReply);
-		ibtnReply.setTag(tweet.getTweetId());
+		ibtnReply.setTag(tweet.getUser().getScreenName());
 		// set tweeter's real name
 		TextView tvRealName = (TextView) v.findViewById(R.id.tvRealName);
 		tvRealName.setText(u.getName());
