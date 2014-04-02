@@ -55,49 +55,31 @@
 				android:onClick="onReply"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginRight="70dp"
+				android:layout_marginLeft="50dp"
 				android:background="@null"
 				android:src="@drawable/ic_reply"
-				android:layout_toLeftOf="@+id/ibtnRetweetUnselected"
-				android:layout_below="@+id/tvTweetBody"/>
-		<ImageButton
-				android:id="@+id/ibtnRetweetUnselected"
-				android:onClick="onRetweet"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:background="@null"
-				android:src="@drawable/ic_retweet_unselected"
-				android:layout_centerHorizontal="true"
-				android:layout_below="@+id/tvTweetBody"/>
-		<ImageButton
-				android:id="@+id/ibtnRetweet"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:visibility="invisible"
-				android:background="@null"
-				android:src="@drawable/ic_retweet_selected"
-				android:layout_centerHorizontal="true"
+				android:layout_alignParentLeft="true"
 				android:layout_below="@+id/tvTweetBody"/>
 		<ImageButton
 				android:id="@+id/ibtnUnfavorite"
 				android:onClick="onFavorite"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginLeft="70dp"
+				android:layout_marginRight="70dp"
 				android:background="@null"
 				android:layout_below="@+id/tvTweetBody"
-				android:layout_toRightOf="@+id/ibtnRetweetUnselected"
+				android:layout_alignParentRight="true"
 				android:src="@drawable/ic_favorite_unselected"/>
 		<ImageButton
 				android:id="@+id/ibtnFavorite"
 				android:onClick="onUnfavorite"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginLeft="70dp"
+				android:layout_marginRight="70dp"
 				android:visibility="invisible"
 				android:background="@null"
 				android:layout_below="@+id/tvTweetBody"
-				android:layout_toRightOf="@+id/ibtnRetweetUnselected"
+				android:layout_alignParentRight="true"
 				android:src="@drawable/ic_favorite_selected"/>
 	</RelativeLayout>
 </LinearLayout>

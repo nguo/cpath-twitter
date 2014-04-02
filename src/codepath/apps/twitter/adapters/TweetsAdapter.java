@@ -48,7 +48,6 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		ImageLoader.getInstance().displayImage(tweet.getUser().getProfileImageUrl(), ivProfile);
 		// set tweet statuses
 		setupFavButtons(tweet, v);
-		setupRetweetButtons(tweet, v);
 		ImageButton ibtnReply = (ImageButton) v.findViewById(R.id.ibtnReply);
 		ibtnReply.setTag(tweet.getUser().getScreenName());
 		// set tweeter's real name
@@ -79,21 +78,6 @@ public class TweetsAdapter extends ArrayAdapter<Tweet> {
 		}
 		ibtnFavorite.setTag(new ImageButtonData(ibtnUnfavorite, tweet));
 		ibtnUnfavorite.setTag(new ImageButtonData(ibtnFavorite, tweet));
-	}
-
-	/** setups the retweet buttons */
-	private void setupRetweetButtons(Tweet tweet, View v) {
-		ImageButton ibtnRetweet = (ImageButton) v.findViewById(R.id.ibtnRetweet);
-		ImageButton ibtnRetweetUnselected = (ImageButton) v.findViewById(R.id.ibtnRetweetUnselected);
-		if (tweet.isRetweeted()) {
-			ibtnRetweetUnselected.setVisibility(View.INVISIBLE);
-			ibtnRetweet.setVisibility(View.VISIBLE);
-		} else {
-			ibtnRetweet.setVisibility(View.INVISIBLE);
-			ibtnRetweetUnselected.setVisibility(View.VISIBLE);
-		}
-		ibtnRetweet.setTag(new ImageButtonData(ibtnRetweetUnselected, tweet));
-		ibtnRetweetUnselected.setTag(new ImageButtonData(ibtnRetweet, tweet));
 	}
 
 	/**

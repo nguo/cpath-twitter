@@ -20,7 +20,6 @@ import codepath.apps.twitter.helpers.EndlessScrollListener;
 import codepath.apps.twitter.models.ImageButtonData;
 import codepath.apps.twitter.models.Tweet;
 import codepath.apps.twitter.models.User;
-import com.activeandroid.ActiveAndroid;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import eu.erikw.PullToRefreshListView;
 import org.json.JSONArray;
@@ -348,20 +347,6 @@ public class TimelineActivity extends Activity {
 	 */
 	public void onReply(View v) {
 		composeHelper("@"+v.getTag());
-	}
-
-	/**
-	 * callback when retweet button is hit
-	 * @param v		retweet button view
-	 */
-	public void onRetweet(final View v) {
-		final ImageButtonData tag = (ImageButtonData) v.getTag();
-		TwitterApp.getRestClient().retweet(tag.getTweet().getTweetId(), new JsonHttpResponseHandler() {
-			@Override
-			public void onFailure(Throwable throwable, JSONObject jsonObject) {
-				failureToastHelper(getBaseContext(), "Failed to retweet tweet: ", jsonObject);
-			}
-		});
 	}
 
 	/**

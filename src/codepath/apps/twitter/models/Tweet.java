@@ -3,7 +3,6 @@ package codepath.apps.twitter.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,14 +33,6 @@ public class Tweet extends Model implements Serializable {
 		this.favorited = favorited;
 	}
 
-	public void setRetweeted(boolean retweeted) {
-		this.retweeted = retweeted;
-	}
-
-	@Column(name = "retweeted")
-
-	private boolean retweeted;
-
 	public Tweet(){
 		super();
 	}
@@ -66,10 +57,6 @@ public class Tweet extends Model implements Serializable {
 		return favorited;
 	}
 
-	public boolean isRetweeted() {
-		return retweeted;
-	}
-
 	/**
 	 * Tries to set the tweet's user using a user already defind in the db
 	* @return	true if successfully set the tweet's user to the db's user
@@ -91,7 +78,6 @@ public class Tweet extends Model implements Serializable {
 			tweet.tweetId = jsonObject.getLong("id");
 			tweet.createdAt = jsonObject.getString("created_at");
 			tweet.favorited = jsonObject.getBoolean("favorited");
-			tweet.retweeted = jsonObject.getBoolean("retweeted");
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return null;
