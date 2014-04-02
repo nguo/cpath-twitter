@@ -5,7 +5,9 @@ TheCodePath: Twitter App
 
 Sample Images:
 
+![Alt text](assets/01login.png "Share image.")
 
+![Alt text](assets/02timeline.png "Share image.")
 
 Completed Stories:
 
