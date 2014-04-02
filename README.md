@@ -5,9 +5,11 @@ TheCodePath: Twitter App
 
 Sample Images:
 
-![Alt text](assets/01login.png "Share image.")
+![Alt text](assets/01login.png "Login Screen")
 
-![Alt text](assets/02timeline.png "Share image.")
+![Alt text](assets/02timeline.png "Home Timeline")
+
+![Alt text](assets/03compose.png "Composing Tweet")
 
 Completed Stories:
 
